@@ -1,0 +1,48 @@
+service: otp-service
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+      Resource: "*"
+# Comment resources for re-deploys
+resources:
+  Resources:
+    OtpTable:
+      Type: "AWS::DynamoDB::Table"
+      DeletionPolicy: Retain
+      Properties:
+        TableName: "email_otp"
+        AttributeDefinitions:
+          - AttributeName: "email"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "email"
+            KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+functions:
+  requestOtp:
+    handler: api/OtpService.request
+    memorySize: 128
+    description: Request a one time password
+    events:
+      - http:
+          path: otp/request
+          method: post
+  verifyOtp:
+    handler: api/OtpService.verify
+    memorySize: 128
+    description: Verify a one time password
+    events:
+      - http:
+          path: otp/verify
+          method: post
