@@ -2,6 +2,7 @@ service: otp-service
 plugins:
   - serverless-dotenv-plugin
   - serverless-finch
+  - serverless-build-client
 provider:
   name: aws
   runtime: nodejs12.x
@@ -15,8 +16,6 @@ provider:
         - dynamodb:DeleteItem
         - ses:SendEmail
       Resource: "*"
-  environment:
-    EMAIL_FROM: ${env:EMAIL_FROM}
 # Un-comment to create table on deploy:
 # resources:
 #   Resources:
@@ -56,3 +55,7 @@ functions:
 custom:
   client:
     bucketName: otp-challenge-ui
+    distributionFolder: build
+  buildClient:
+    environment:
+      REACT_APP_API_URL: ${cf:otp-service-dev.ServiceEndpoint}

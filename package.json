@@ -47,6 +47,7 @@
     ]
   },
   "devDependencies": {
+    "serverless-build-client": "^2.5.0",
     "serverless-dotenv-plugin": "^3.0.0"
   }
 }
