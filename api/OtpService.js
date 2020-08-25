@@ -1,6 +1,8 @@
 const AWS = require("aws-sdk");
+const OTP_TABLE = process.env.DYNAMO_TABLE_NAME;
 const db = new AWS.DynamoDB.DocumentClient();
-const OTP_TABLE = "email_otp";
+const SesGateway = require("./SesGateway.js");
+
 exports.request = async (event, context) => {
   try {
     const { email } = JSON.parse(event.body);
@@ -15,6 +17,7 @@ exports.request = async (event, context) => {
         },
       })
       .promise();
+    await SesGateway.sendOtpEmail({ email, otp });
     return {
       statusCode: 200,
       body: JSON.stringify({ otp }),

@@ -1,5 +1,6 @@
 service: otp-service
-
+plugins:
+  - serverless-dotenv-plugin
 provider:
   name: aws
   runtime: nodejs12.x
@@ -11,24 +12,27 @@ provider:
         - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:DeleteItem
+        - ses:SendEmail
       Resource: "*"
-# Comment resources for re-deploys
-resources:
-  Resources:
-    OtpTable:
-      Type: "AWS::DynamoDB::Table"
-      DeletionPolicy: Retain
-      Properties:
-        TableName: "email_otp"
-        AttributeDefinitions:
-          - AttributeName: "email"
-            AttributeType: "S"
-        KeySchema:
-          - AttributeName: "email"
-            KeyType: "HASH"
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
+  environment:
+    EMAIL_FROM: ${env:EMAIL_FROM}
+# Un-comment to create table on deploy:
+# resources:
+#   Resources:
+#     OtpTable:
+#       Type: "AWS::DynamoDB::Table"
+#       DeletionPolicy: Retain
+#       Properties:
+#         TableName: ${env:DYNAMO_TABLE_NAME}
+#         AttributeDefinitions:
+#           - AttributeName: "email"
+#             AttributeType: "S"
+#         KeySchema:
+#           - AttributeName: "email"
+#             KeyType: "HASH"
+#         ProvisionedThroughput:
+#           ReadCapacityUnits: 1
+#           WriteCapacityUnits: 1
 functions:
   requestOtp:
     handler: api/OtpService.request
