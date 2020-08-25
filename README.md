@@ -26,18 +26,22 @@ This repo contains a solution for the challenge described [here](https://www.not
 
 ## .env file
 
-- Replace `<<DYNAMO_TABLE_NAME>>` with a name of a Dynamo for OTP storage
+- Set `DYNAMO_TABLE_NAME` to a name of a DynamoDB table for OTP storage
   **Note: Severless can create the table for you. Just uncomment the `resources` section in `serverless.yaml` for the first deploy**
+- Set `S3_BUCKET_NAME` to a name of an S3 bucket to deploy the UI App
 - Replace `<<EMAIL_FROM>>` with an email address that's been verified in SES, this is used to send the emails. More info [here](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/verify-email-addresses.html)
 
 ## Deploy
 
 ```
+$yarn install
 $sls deploy
 $sls client build
-$sls client deploy
+$sls client deploy --no-confirm
 
 ```
+
+The cli log will output the url for the deployed app
 
 ## TODO
 

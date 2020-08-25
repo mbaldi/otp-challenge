@@ -3,6 +3,13 @@ plugins:
   - serverless-dotenv-plugin
   - serverless-finch
   - serverless-build-client
+package:
+  exclude:
+    - build/**
+    - node_modules/**
+    - public/**
+    - src/**
+
 provider:
   name: aws
   runtime: nodejs12.x
@@ -54,7 +61,7 @@ functions:
           cors: true
 custom:
   client:
-    bucketName: otp-challenge-ui
+    bucketName: ${env:S3_BUCKET_NAME}
     distributionFolder: build
   buildClient:
     environment:
