@@ -1,6 +1,7 @@
 service: otp-service
 plugins:
   - serverless-dotenv-plugin
+  - serverless-finch
 provider:
   name: aws
   runtime: nodejs12.x
@@ -42,6 +43,7 @@ functions:
       - http:
           path: otp/request
           method: post
+          cors: true
   verifyOtp:
     handler: api/OtpService.verify
     memorySize: 128
@@ -50,3 +52,7 @@ functions:
       - http:
           path: otp/verify
           method: post
+          cors: true
+custom:
+  client:
+    bucketName: otp-challenge-ui

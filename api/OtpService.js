@@ -3,6 +3,15 @@ const OTP_TABLE = process.env.DYNAMO_TABLE_NAME;
 const db = new AWS.DynamoDB.DocumentClient();
 const SesGateway = require("./SesGateway.js");
 
+const getResponse = (statusCode, payload) => ({
+  statusCode,
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Credentials": true,
+  },
+  body: JSON.stringify(payload),
+});
+
 exports.request = async (event, context) => {
   try {
     const { email } = JSON.parse(event.body);
@@ -18,10 +27,7 @@ exports.request = async (event, context) => {
       })
       .promise();
     await SesGateway.sendOtpEmail({ email, otp });
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ otp }),
-    };
+    return getResponse(200, { otp });
   } catch (e) {
     console.log(e);
     return e;
@@ -30,6 +36,7 @@ exports.request = async (event, context) => {
 
 exports.verify = async (event, context) => {
   try {
+    let verified;
     const { email, otp } = JSON.parse(event.body);
     const record = await db
       .get({
@@ -39,7 +46,6 @@ exports.verify = async (event, context) => {
         },
       })
       .promise();
-    console.log(record);
     if (record.Item && record.Item.otp === otp) {
       await db
         .delete({
@@ -49,15 +55,11 @@ exports.verify = async (event, context) => {
           },
         })
         .promise();
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ verified: true }),
-      };
-    } else
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ verified: false }),
-      };
+      verified = true;
+    } else {
+      verified = false;
+    }
+    return getResponse(200, { verified });
   } catch (e) {
     console.log(e);
     return e;

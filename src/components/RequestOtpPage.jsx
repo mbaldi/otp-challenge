@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import BaseForm from "./BaseForm";
+import { requestOtp, verifyOtp } from "../apiOperations";
 
 const RequestOtpPage = () => {
   const [otpRequested, setOtpRequested] = useState(false);
@@ -7,16 +8,27 @@ const RequestOtpPage = () => {
   const [email, setEmail] = useState("");
   const [verificationMessage, setVerificationMessage] = useState("");
 
-  const handleRequestOTP = (email) => {
-    //TBD invoke API
+  const handleRequestOTP = async (email) => {
+    try {
+      await requestOtp(email);
+    } catch (e) {
+      console.log(e);
+    }
     setOtpRequested(true);
     setEmail(email);
   };
 
-  const handleVerifyOTP = (otp) => {
-    //TBD invoke API
+  const handleVerifyOTP = async (otp) => {
+    let response = {};
+    try {
+      response = await verifyOtp(email, otp);
+    } catch (e) {
+      console.log(e);
+    }
     setOtpVerified(true);
-    setVerificationMessage("OTP Succesfully verified");
+    setVerificationMessage(
+      response.verified ? "OTP succesfully verified" : "Invalid OTP"
+    );
   };
 
   const handleStartAgain = () => {
@@ -36,7 +48,7 @@ const RequestOtpPage = () => {
           onClick={handleRequestOTP}
         />
       )}
-      {otpRequested && !otpVerified && (
+      {otpRequested && (
         <>
           <BaseForm
             label="Thank you, we have sent an OTP to your email, please enter it here"
@@ -44,12 +56,7 @@ const RequestOtpPage = () => {
             buttonLabel="Verify"
             onClick={handleVerifyOTP}
           />
-          <button onClick={handleStartAgain}>Start Again</button>
-        </>
-      )}
-      {otpVerified && (
-        <>
-          <p>{verificationMessage}</p>
+          {otpVerified && <p>{verificationMessage}</p>}
           <button onClick={handleStartAgain}>Start Again</button>
         </>
       )}
